@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}{{ complaint.title }}{% endblock %}
+{% block content %}
+<a href="{% url 'home' %}" class="small">&larr; Back to complaints</a>
+<div class="card shadow-sm mt-2 mb-4">
+  <div class="card-body p-4">
+    <div class="d-flex justify-content-between align-items-start">
+      <h1 class="h4">{{ complaint.title }}</h1>
+      <span class="badge bg-primary">{{ complaint.get_status_display }}</span>
+    </div>
+    <p class="text-muted small mb-3">
+      {{ complaint.get_category_display }} &middot; submitted {{ complaint.created_at|date:"d M Y, H:i" }}
+      {% if not user.is_student %}by {{ complaint.student.username }}{% endif %}
+      {% if complaint.assigned_to %}&middot; assigned to {{ complaint.assigned_to.username }}{% endif %}
+    </p>
+    <p style="white-space: pre-wrap;">{{ complaint.description }}</p>
+  </div>
+</div>
+
+<h2 class="h5">Responses</h2>
+{% for r in complaint.responses.all %}
+  <div class="card mb-2"><div class="card-body py-2">
+    <div class="small text-muted">{{ r.author.username }} &middot; {{ r.created_at|date:"d M Y, H:i" }}</div>
+    <div style="white-space: pre-wrap;">{{ r.message }}</div>
+  </div></div>
+{% empty %}
+  <p class="text-muted">No responses yet.</p>
+{% endfor %}
+{% endblock %}
