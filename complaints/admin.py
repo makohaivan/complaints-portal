@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import AuditLog, Complaint, ComplaintResponse
+from .models import Attachment, AuditLog, Complaint, ComplaintResponse
 
 
 @admin.register(Complaint)
@@ -10,6 +10,11 @@ class ComplaintAdmin(admin.ModelAdmin):
 
 
 admin.site.register(ComplaintResponse)
+
+
+@admin.register(Attachment)
+class AttachmentAdmin(admin.ModelAdmin):
+    list_display = ("original_name", "complaint", "uploaded_by", "content_type", "size", "created_at")
 
 
 @admin.register(AuditLog)

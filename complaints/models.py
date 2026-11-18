@@ -1,7 +1,17 @@
 import uuid
+from pathlib import Path
 
 from django.conf import settings
 from django.db import models
+
+
+def attachment_upload_path(instance, filename):
+    """
+    Never use the client-supplied filename on disk. A random name defeats
+    path traversal (../../x), overwrites, and guessing/enumeration.
+    """
+    ext = Path(filename).suffix.lower()
+    return f"complaint_attachments/{uuid.uuid4().hex}{ext}"
 
 
 class Complaint(models.Model):
@@ -19,8 +29,14 @@ class Complaint(models.Model):
         CONDUCT = "conduct", "Staff or student conduct"
         OTHER = "other", "Other"
 
-    # UUID keys are not guessable/enumerable like 1, 2, 3 (defence in depth:
-    # the real protection is the server-side ownership filter in permissions.py).
+    # Server-enforced state machine. Staff can only make these moves, no
+    # matter what a tampered POST contains.
+    ALLOWED_TRANSITIONS = {
+        "assigned": ["in_progress"],
+        "in_progress": ["resolved"],
+        "resolved": ["in_progress"],  # re-open
+    }
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     student = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="complaints"
@@ -45,6 +61,9 @@ class Complaint(models.Model):
     def __str__(self):
         return f"{self.title} [{self.get_status_display()}]"
 
+    def allowed_next(self):
+        return self.ALLOWED_TRANSITIONS.get(self.status, [])
+
 
 class ComplaintResponse(models.Model):
     complaint = models.ForeignKey(Complaint, on_delete=models.CASCADE, related_name="responses")
@@ -54,6 +73,23 @@ class ComplaintResponse(models.Model):
 
     class Meta:
         ordering = ["created_at"]
+
+
+class Attachment(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    complaint = models.ForeignKey(Complaint, on_delete=models.CASCADE, related_name="attachments")
+    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    file = models.FileField(upload_to=attachment_upload_path)
+    original_name = models.CharField(max_length=100)
+    content_type = models.CharField(max_length=50)
+    size = models.PositiveIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return self.original_name
 
 
 class AuditLog(models.Model):

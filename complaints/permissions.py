@@ -1,5 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
+from django.http import Http404
 
 from accounts.models import User
 
@@ -21,6 +22,16 @@ def visible_complaints(user):
     if user.role == User.Role.STAFF:
         return qs.filter(assigned_to=user)
     return qs.filter(student=user)
+
+
+def get_visible_or_404(request, pk):
+    """Fetch a complaint the user may access, else 404 (and log IDOR attempts)."""
+    try:
+        return visible_complaints(request.user).get(pk=pk)
+    except Complaint.DoesNotExist:
+        if Complaint.objects.filter(pk=pk).exists():
+            log_event(request, "access_denied", detail=f"pk={pk} not owner/assignee")
+        raise Http404
 
 
 class RoleRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
