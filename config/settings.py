@@ -157,3 +157,24 @@ LOGGING = {
         "axes": {"handlers": ["security_file"], "level": "INFO", "propagate": False},
     },
 }
+
+
+# --- PHASE 4 HARDENING ---
+import sys  # noqa: E402
+
+ADMIN_URL = config("ADMIN_URL", default="admin/")  # change in .env to move the admin
+
+# Rate limiting is switched off while running `manage.py test` so unrelated tests
+# do not trip it; the dedicated rate-limit tests turn it back on.
+RATELIMIT_ENABLED = "test" not in sys.argv
+
+# Per-process cache used for rate-limit counters. Production: Redis (shared).
+CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}
+
+# Friendly page when django-axes locks an account (HTTP 429).
+AXES_LOCKOUT_TEMPLATE = "lockout.html"
+
+SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+MIDDLEWARE += ["config.middleware.SecurityHeadersMiddleware"]

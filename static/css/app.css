@@ -1,0 +1,2 @@
+/* Our own tiny stylesheet. No inline styles are used anywhere (CSP: style-src 'self'). */
+.preserve-lines { white-space: pre-wrap; }

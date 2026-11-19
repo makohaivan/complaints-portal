@@ -1,6 +1,7 @@
 import logging
 
 from django.contrib import messages
+from django.contrib.auth.views import PasswordChangeView
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
@@ -26,4 +27,18 @@ class RegisterView(CreateView):
         log.info("event=register user=%s ip=%s",
                  clean(self.object.username), client_ip(self.request))
         messages.success(self.request, "Account created. You can now log in.")
+        return response
+
+
+class LoggedPasswordChangeView(PasswordChangeView):
+    """Requires the OLD password; keeps the session; logs the event."""
+
+    template_name = "accounts/password_change.html"
+    success_url = reverse_lazy("home")
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        log.info("event=password_changed user=%s ip=%s",
+                 clean(self.request.user.username), client_ip(self.request))
+        messages.success(self.request, "Your password has been changed.")
         return response

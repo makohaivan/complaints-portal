@@ -16,7 +16,7 @@
           {% if not user.is_student %}by {{ complaint.student.username }}{% endif %}
           {% if complaint.assigned_to %}&middot; assigned to {{ complaint.assigned_to.username }}{% endif %}
         </p>
-        <p style="white-space: pre-wrap;">{{ complaint.description }}</p>
+        <p class="preserve-lines">{{ complaint.description }}</p>
 
         <h2 class="h6 mt-4">Attachments</h2>
         {% for a in attachments %}
@@ -34,7 +34,7 @@
     {% for r in complaint.responses.all %}
       <div class="card mb-2"><div class="card-body py-2">
         <div class="small text-muted">{{ r.author.username }} <span class="badge bg-secondary">{{ r.author.get_role_display }}</span> &middot; {{ r.created_at|date:"d M Y, H:i" }}</div>
-        <div style="white-space: pre-wrap;">{{ r.message }}</div>
+        <div class="preserve-lines">{{ r.message }}</div>
       </div></div>
     {% empty %}
       <p class="text-muted">No responses yet.</p>
