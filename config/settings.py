@@ -89,7 +89,9 @@ AUTHENTICATION_BACKENDS = [
 AXES_FAILURE_LIMIT = 5          # lock after 5 failed logins
 AXES_COOLOFF_TIME = 1           # hours
 AXES_RESET_ON_SUCCESS = True
-AXES_LOCKOUT_PARAMETERS = ["username", "ip_address"]
+# Lock the (username + IP) PAIR, not the whole IP, so an attacker cannot lock out
+# every student on a shared campus network (lockout denial of service).
+AXES_LOCKOUT_PARAMETERS = [["username", "ip_address"]]
 
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "home"

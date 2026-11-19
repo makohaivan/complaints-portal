@@ -6,12 +6,15 @@ from config.ratelimit import post_rate_limit
 from .views import LoggedPasswordChangeView, RegisterView
 
 urlpatterns = [
-    # Login brute-forcing is handled by django-axes (5 failures -> lockout).
+    # Login: django-axes locks one (username + IP) pair after 5 failures, and a
+    # per-IP rate limit slows down password-spraying across many usernames.
     path(
         "login/",
-        LoginView.as_view(
-            template_name="registration/login.html",
-            redirect_authenticated_user=True,
+        post_rate_limit("login", limit=30, window=600)(
+            LoginView.as_view(
+                template_name="registration/login.html",
+                redirect_authenticated_user=True,
+            )
         ),
         name="login",
     ),

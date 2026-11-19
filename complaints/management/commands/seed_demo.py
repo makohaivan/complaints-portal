@@ -5,7 +5,7 @@ from accounts.models import User
 from complaints.models import Complaint
 
 # DEMO ONLY. These are test accounts for the README. Never use in production.
-DEMO_PASSWORD = "Complaints#2026!"
+DEMO_PASSWORD = "Complaints#2026!"  # nosec B105 - ACCEPTED RISK: published demo credential; the command refuses to run when DEBUG=False
 
 ACCOUNTS = [
     ("admin1", User.Role.ADMIN, "admin1@example.com"),
