@@ -113,6 +113,19 @@ templates/      Bootstrap 5 templates
 static/         self-hosted Bootstrap and app.css
 ```
 
+## Security testing
+
+| Tool | How to run | Evidence |
+|------|-----------|----------|
+| Unit and integration tests | `python manage.py test complaints -v 2` | console output |
+| Static analysis (Bandit) | `python security_tests/run_bandit.py --label after` | `docs/evidence/bandit_*` |
+| Dynamic scan (OWASP ZAP) | see `docs/ZAP_GUIDE.md` | `docs/evidence/zap_*` |
+| Manual attack tests | `python security_tests/attack_tests.py --label after` (server running) | `docs/evidence/attack_results_*` |
+
+The attack tests cover access control (IDOR, privilege escalation), SQL injection,
+reflected and stored XSS, CSRF, mass assignment, session fixation, open redirects, file
+upload abuse, forced browsing, and brute-force/lockout behaviour.
+
 ## Known limitations
 
 See the security report for the full reflection. In short: no antivirus scanning of

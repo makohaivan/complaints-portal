@@ -178,3 +178,12 @@ SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 MIDDLEWARE += ["config.middleware.SecurityHeadersMiddleware"]
+
+
+# --- PHASE 5 SCAN MODE ---
+# For OWASP ZAP active scans ONLY. Honoured only when DEBUG=True, so it can never
+# weaken a production deployment. Disables lockout and rate limiting so the scanner is
+# not blocked after a few requests. Leave SCAN_MODE unset/False otherwise.
+if DEBUG and config("SCAN_MODE", default=False, cast=bool):
+    AXES_ENABLED = False
+    RATELIMIT_ENABLED = False
