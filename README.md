@@ -126,6 +126,13 @@ The attack tests cover access control (IDOR, privilege escalation), SQL injectio
 reflected and stored XSS, CSRF, mass assignment, session fixation, open redirects, file
 upload abuse, forced browsing, and brute-force/lockout behaviour.
 
+## Documentation
+
+- [Threat model (data flow diagram and STRIDE analysis)](docs/threat_model.md)
+- [Security test evidence](docs/evidence/) (Bandit, ZAP, manual attack tests, before and after)
+- [OWASP ZAP guide](docs/ZAP_GUIDE.md)
+- Security report and demo video: see the links at the top of this README
+
 ## Known limitations
 
 See the security report for the full reflection. In short: no antivirus scanning of
