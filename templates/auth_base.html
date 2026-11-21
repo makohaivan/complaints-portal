@@ -1,0 +1,52 @@
+{% load static ui %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#312e81">
+  <title>{% block title %}Log in{% endblock %} | Student Complaints Portal</title>
+  <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}">
+  <link href="{% static 'vendor/bootstrap/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'css/fonts.css' %}" rel="stylesheet">
+  <link href="{% static 'css/app.css' %}" rel="stylesheet">
+</head>
+<body>
+<div class="auth-shell">
+  <section class="auth-hero">
+    <div class="hero-brand">
+      <span class="brand-mark">{% include "includes/logo.html" %}</span>
+      <div><strong>Complaints Portal</strong><small>STUDENT SERVICES</small></div>
+    </div>
+
+    <div class="hero-copy">
+      <span class="eyebrow">{% icon "shield-check" %}A safe place to be heard</span>
+      <h1>Raise it. Track it. <em>Resolve it.</em></h1>
+      <p>The Student Complaints Portal gives every student a private, trackable way to report problems with academics, fees, accommodation and campus life, and gives staff a clear queue to resolve them.</p>
+      <ul class="feature-list">
+        <li class="feature"><span class="feature-icon">{% icon "lock-fill" %}</span><div><strong>Private by design</strong><span>Only you and the staff member assigned to your case can see a complaint.</span></div></li>
+        <li class="feature"><span class="feature-icon">{% icon "clock-history" %}</span><div><strong>Real-time tracking</strong><span>Follow every complaint from open to resolved and read staff replies.</span></div></li>
+        <li class="feature"><span class="feature-icon">{% icon "paperclip" %}</span><div><strong>Attach your evidence</strong><span>Upload PDFs and images, safely scanned for type and size.</span></div></li>
+      </ul>
+    </div>
+
+    <div class="steps">
+      <div class="step"><span class="step-n">1</span><strong>Submit</strong><span>Describe the issue</span></div>
+      <div class="step"><span class="step-n">2</span><strong>Assigned</strong><span>Staff take your case</span></div>
+      <div class="step"><span class="step-n">3</span><strong>Resolved</strong><span>Get a response</span></div>
+    </div>
+
+    <p class="hero-foot">{% icon "shield-lock-fill" %}Protected by lockout, rate limiting and a full audit trail.</p>
+  </section>
+
+  <section class="auth-panel">
+    <div class="auth-card">
+      <div class="hero-brand mobile-brand"></div>
+      {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">{% if message.tags == 'success' %}{% icon "check-circle-fill" %}{% elif message.tags == 'error' or message.tags == 'warning' %}{% icon "exclamation-triangle-fill" %}{% else %}{% icon "info-circle-fill" %}{% endif %}<span>{{ message }}</span></div>
+      {% endfor %}
+      {% block auth_content %}{% endblock %}
+    </div>
+  </section>
+</div>
+</body>
+</html>

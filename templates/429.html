@@ -1,9 +1,11 @@
-{% extends "base.html" %}
+{% extends "base.html" %}{% load ui %}
 {% block title %}Too many requests{% endblock %}
+{% block page_title %}Slow down{% endblock %}
 {% block content %}
-<div class="text-center py-5">
-  <h1 class="display-5">429</h1>
-  <p class="lead">You are doing that too often. Please wait a while and try again.</p>
-  <a class="btn btn-primary" href="{% url 'home' %}">Back to home</a>
+<div class="state-page">
+  <div class="state-icon tone-amber">{% icon "hourglass-split" %}</div>
+  <div class="state-code">429</div>
+  <p>You are doing that too often. Please wait a while and try again.</p>
+  <a class="btn btn-primary" href="{% url 'login' %}">{% icon "house-fill" %}<span>Back to the portal</span></a>
 </div>
 {% endblock %}

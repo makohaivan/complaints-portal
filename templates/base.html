@@ -1,40 +1,52 @@
-{% load static %}<!doctype html>
+{% load static ui %}<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}Home{% endblock %} | Student Complaints Portal</title>
+  <meta name="theme-color" content="#312e81">
+  <title>{% block title %}Dashboard{% endblock %} | Student Complaints Portal</title>
+  <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}">
   <link href="{% static 'vendor/bootstrap/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'css/fonts.css' %}" rel="stylesheet">
   <link href="{% static 'css/app.css' %}" rel="stylesheet">
 </head>
-<body class="bg-light">
-<nav class="navbar navbar-expand navbar-dark bg-dark mb-4">
-  <div class="container">
-    <a class="navbar-brand" href="{% url 'home' %}">Complaints Portal</a>
-    <div class="d-flex align-items-center gap-2">
-      {% if user.is_authenticated %}
-        <span class="text-light small">{{ user.username }}
-          <span class="badge bg-secondary">{{ user.get_role_display }}</span></span>
-        {% if user.is_student %}
-          <a class="btn btn-sm btn-outline-light" href="{% url 'complaint_create' %}">New complaint</a>
-        {% endif %}
-        <a class="btn btn-sm btn-outline-light" href="{% url 'password_change' %}">Change password</a>
-        <form method="post" action="{% url 'logout' %}" class="m-0">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-sm btn-light">Log out</button>
-        </form>
-      {% else %}
-        <a class="btn btn-sm btn-outline-light" href="{% url 'login' %}">Log in</a>
-        <a class="btn btn-sm btn-light" href="{% url 'register' %}">Register</a>
-      {% endif %}
-    </div>
+<body>
+{% with url_name=request.resolver_match.url_name %}{% if user.is_authenticated %}
+<div class="app-shell">
+  <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Toggle menu">
+  <label for="nav-toggle" class="nav-scrim"></label>
+  {% include "includes/sidebar.html" %}
+  <div class="main">
+    <header class="topbar">
+      <label for="nav-toggle" class="menu-btn" aria-label="Open menu">{% icon "list" %}</label>
+      <div class="topbar-title">
+        <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
+        <p class="page-sub">{% block page_sub %}{% endblock %}</p>
+      </div>
+      <div class="topbar-actions">{% block topbar_actions %}{% endblock %}</div>
+    </header>
+    <main class="content">
+{% else %}
+<div class="public-shell">
+  <header class="public-bar">
+    <a class="brand" href="{% url 'login' %}">
+      <span class="brand-mark">{% include "includes/logo.html" %}</span>
+      <span><strong>Complaints Portal</strong><small>STUDENT SERVICES</small></span>
+    </a>
+  </header>
+  <main class="public-content">
+{% endif %}
+      {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">{% if message.tags == 'success' %}{% icon "check-circle-fill" %}{% elif message.tags == 'error' or message.tags == 'warning' %}{% icon "exclamation-triangle-fill" %}{% else %}{% icon "info-circle-fill" %}{% endif %}<span>{{ message }}</span></div>
+      {% endfor %}
+      {% block content %}{% endblock %}
+{% if user.is_authenticated %}
+    </main>
   </div>
-</nav>
-<main class="container pb-5">
-  {% for message in messages %}
-    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">{{ message }}</div>
-  {% endfor %}
-  {% block content %}{% endblock %}
-</main>
+</div>
+{% else %}
+  </main>
+</div>
+{% endif %}{% endwith %}
 </body>
 </html>

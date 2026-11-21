@@ -1,8 +1,18 @@
-<!doctype html>
+{% load static %}<!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><title>Server error</title></head>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Server error | Student Complaints Portal</title>
+  <link href="{% static 'vendor/bootstrap/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'css/fonts.css' %}" rel="stylesheet">
+  <link href="{% static 'css/app.css' %}" rel="stylesheet">
+</head>
 <body>
-  <h1>Something went wrong</h1>
-  <p>The error has been logged. Please try again later.</p>
+  <div class="state-page">
+    <div class="state-code">500</div>
+    <h1 class="h4">Something went wrong</h1>
+    <p>The error has been logged. Please try again later.</p>
+  </div>
 </body>
 </html>

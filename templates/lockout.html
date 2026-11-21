@@ -1,13 +1,8 @@
-{% extends "base.html" %}
+{% extends "auth_base.html" %}{% load ui %}
 {% block title %}Account temporarily locked{% endblock %}
-{% block content %}
-<div class="row justify-content-center">
-  <div class="col-md-6">
-    <div class="alert alert-danger">
-      <h1 class="h5">Account temporarily locked</h1>
-      <p class="mb-0">There were too many failed login attempts. Please wait one hour and try again,
-      or contact the system administrator.</p>
-    </div>
-  </div>
-</div>
+{% block auth_content %}
+<div class="state-icon tone-red">{% icon "lock-fill" %}</div>
+<h2>Account temporarily locked</h2>
+<p class="auth-sub">There were too many failed login attempts. Please wait one hour and try again, or contact the system administrator.</p>
+<a class="btn btn-outline-primary w-100 justify-content-center" href="{% url 'login' %}">{% icon "arrow-right-circle-fill" %}<span>Back to log in</span></a>
 {% endblock %}

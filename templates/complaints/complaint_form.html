@@ -1,10 +1,11 @@
-{% extends "base.html" %}
+{% extends "base.html" %}{% load ui %}
 {% block title %}New complaint{% endblock %}
+{% block page_title %}New complaint{% endblock %}
+{% block page_sub %}Tell us what happened{% endblock %}
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-md-8">
-    <div class="card shadow-sm"><div class="card-body p-4">
-      <h1 class="h4 mb-3">Submit a complaint</h1>
+<div class="row">
+  <div class="col-xl-8">
+    <div class="card-ui pad">
       <form method="post" enctype="multipart/form-data" novalidate>
         {% csrf_token %}
         {% for field in form %}
@@ -12,13 +13,23 @@
             <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
             {{ field }}
             {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
-            {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+            {% for error in field.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
           </div>
         {% endfor %}
-        <button class="btn btn-primary" type="submit">Submit complaint</button>
-        <a class="btn btn-link" href="{% url 'home' %}">Cancel</a>
+        <button class="btn btn-primary" type="submit">{% icon "send-fill" %}<span>Submit complaint</span></button>
+        <a class="btn btn-ghost" href="{% url 'home' %}">Cancel</a>
       </form>
-    </div></div>
+    </div>
+  </div>
+  <div class="col-xl-4 mt-4 mt-xl-0">
+    <div class="card-ui">
+      <div class="card-head"><h2>{% icon "shield-check" %}Your privacy</h2></div>
+      <ul class="mini-list">
+        <li><span class="mini-icon">{% icon "eye-fill" %}</span><div class="mini-grow">Only you and the assigned staff member can read this complaint.</div></li>
+        <li><span class="mini-icon">{% icon "paperclip" %}</span><div class="mini-grow">Attach a PDF, PNG or JPG (max 2 MB) as evidence.</div></li>
+        <li><span class="mini-icon">{% icon "clock-history" %}</span><div class="mini-grow">Track progress from your dashboard at any time.</div></li>
+      </ul>
+    </div>
   </div>
 </div>
 {% endblock %}

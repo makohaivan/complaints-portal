@@ -1,0 +1,132 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_sub %}{% if user.is_student %}Your complaints at a glance{% elif user.is_staff_member %}Your assigned caseload{% else %}Portal overview{% endif %}{% endblock %}
+{% block topbar_actions %}{% if user.is_student %}<a class="btn btn-primary" href="{% url 'complaint_create' %}">{% icon "plus-circle-fill" %}<span>New complaint</span></a>{% endif %}{% endblock %}
+
+{% block content %}
+<section class="welcome card-ui">
+  <h2>Welcome back, {{ user.username }}</h2>
+  <p>
+    {% if user.is_student %}Submit a new complaint or check how your existing ones are progressing.
+    {% elif user.is_staff_member %}Here are the complaints assigned to you. Reply and keep the status up to date.
+    {% else %}Assign new complaints to staff and keep an eye on portal activity.{% endif %}
+  </p>
+</section>
+
+<div class="grid-stats">
+  <div class="card-ui stat"><span class="stat-icon tone-primary">{% icon "journal-text" %}</span><div><div class="stat-num">{{ total }}</div><div class="stat-label">{% if user.is_student %}My complaints{% elif user.is_staff_member %}Assigned to me{% else %}All complaints{% endif %}</div></div></div>
+  <div class="card-ui stat"><span class="stat-icon tone-amber">{% icon "hourglass-split" %}</span><div><div class="stat-num">{{ waiting }}</div><div class="stat-label">Waiting (open or assigned)</div></div></div>
+  <div class="card-ui stat"><span class="stat-icon tone-blue">{% icon "arrow-repeat" %}</span><div><div class="stat-num">{{ in_progress }}</div><div class="stat-label">In progress</div></div></div>
+  <div class="card-ui stat"><span class="stat-icon tone-green">{% icon "check2-circle" %}</span><div><div class="stat-num">{{ resolved }}</div><div class="stat-label">Resolved</div></div></div>
+</div>
+
+{% if user.is_portal_admin %}
+<div class="grid-stats">
+  <div class="card-ui stat"><span class="stat-icon tone-red">{% icon "inbox-fill" %}</span><div><div class="stat-num">{{ unassigned_count }}</div><div class="stat-label">Need assignment</div></div></div>
+  <div class="card-ui stat"><span class="stat-icon tone-primary">{% icon "people-fill" %}</span><div><div class="stat-num">{{ staff_count }}</div><div class="stat-label">Active staff members</div></div></div>
+  <div class="card-ui stat"><span class="stat-icon tone-amber">{% icon "exclamation-triangle-fill" %}</span><div><div class="stat-num">{{ denied_24h }}</div><div class="stat-label">Access denied, last 24 h</div></div></div>
+</div>
+{% endif %}
+
+<div class="card-ui pad mb-4">
+  <div class="card-head card-head-flat">
+    <h2>{% icon "activity" %}Status overview</h2>
+    <span class="cell-sub">{{ total }} total</span>
+  </div>
+  <svg class="status-bar" viewBox="0 0 100 12" preserveAspectRatio="none" role="img" aria-label="Complaints by status">
+    {% for s in segments %}{% if s.count %}<rect class="{{ s.css }}" x="{{ s.x }}" y="0" width="{{ s.w }}" height="12"></rect>{% endif %}{% endfor %}
+  </svg>
+  <div class="legend">
+    {% for s in segments %}<span><i class="dot dot-{% if s.css == 'seg-progress' %}progress{% else %}{{ s.label|lower }}{% endif %}"></i>{{ s.label }} <b>{{ s.count }}</b></span>{% endfor %}
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card-ui">
+    <div class="card-head">
+      <h2>{% icon "clock-history" %}Recent complaints</h2>
+      <a class="card-link" href="{% url 'home' %}">View all</a>
+    </div>
+    {% if recent %}
+    <div class="table-wrap">
+      <table class="table-ui">
+        <thead><tr><th>Title</th>{% if not user.is_student %}<th>Student</th>{% endif %}<th>Status</th><th>Submitted</th></tr></thead>
+        <tbody>
+        {% for c in recent %}
+          <tr>
+            <td><a href="{% url 'complaint_detail' c.pk %}">{{ c.title }}</a><div class="cell-sub">{{ c.get_category_display }}</div></td>
+            {% if not user.is_student %}<td>{{ c.student.username }}</td>{% endif %}
+            <td><span class="pill pill-{{ c.status }}">{{ c.get_status_display }}</span></td>
+            <td>{{ c.created_at|date:"d M Y" }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <div class="empty">{% icon "inbox-fill" %}<strong>Nothing here yet</strong>{% if user.is_student %}Your submitted complaints will appear here.{% else %}No complaints to show.{% endif %}</div>
+    {% endif %}
+  </div>
+
+  <div class="stack">
+    {% if user.is_student %}
+      <div class="card-ui cta-card">
+        <div class="big-icon">{% icon "megaphone-fill" %}</div>
+        <h2 class="h5">Something wrong?</h2>
+        <p class="cell-sub mb-3">Tell us about it. You can attach evidence and follow the progress.</p>
+        <a class="btn btn-primary" href="{% url 'complaint_create' %}">{% icon "plus-circle-fill" %}<span>Submit a complaint</span></a>
+      </div>
+      <div class="card-ui">
+        <div class="card-head"><h2>{% icon "info-circle-fill" %}How tracking works</h2></div>
+        <ol class="steps-list">
+          <li>You submit a complaint with the details and optional evidence.</li>
+          <li>An administrator assigns it to a staff member.</li>
+          <li>Staff reply here and move it to resolved.</li>
+        </ol>
+      </div>
+    {% elif user.is_staff_member %}
+      <div class="card-ui">
+        <div class="card-head"><h2>{% icon "person-check-fill" %}Your queue</h2></div>
+        {% if queue %}
+          <ul class="mini-list">
+            {% for c in queue %}
+              <li><span class="mini-icon">{% icon "chat-dots-fill" %}</span><div class="mini-grow"><a href="{% url 'complaint_detail' c.pk %}">{{ c.title }}</a><span class="cell-sub">{{ c.student.username }}</span></div><span class="pill pill-{{ c.status }}">{{ c.get_status_display }}</span></li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="empty">{% icon "check2-circle" %}<strong>All caught up</strong>No open cases assigned to you.</div>
+        {% endif %}
+      </div>
+    {% else %}
+      <div class="card-ui">
+        <div class="card-head"><h2>{% icon "inbox-fill" %}Needs assignment</h2><a class="card-link" href="{% url 'home' %}?status=open">View all</a></div>
+        {% if unassigned %}
+          <ul class="mini-list">
+            {% for c in unassigned %}
+              <li><span class="mini-icon">{% icon "hourglass-split" %}</span><div class="mini-grow"><a href="{% url 'complaint_detail' c.pk %}">{{ c.title }}</a><span class="cell-sub">{{ c.student.username }}</span></div><a class="btn btn-sm btn-outline-primary" href="{% url 'complaint_detail' c.pk %}">Assign</a></li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="empty">{% icon "check2-circle" %}<strong>Nothing waiting</strong>Every complaint has an owner.</div>
+        {% endif %}
+      </div>
+      <div class="card-ui">
+        <div class="card-head"><h2>{% icon "shield-lock-fill" %}Recent security activity</h2></div>
+        {% if activity %}
+          <ul class="mini-list">
+            {% for log in activity %}
+              <li>
+                <span class="mini-icon">{% if log.action == "access_denied" or log.action == "rate_limited" %}{% icon "exclamation-triangle-fill" "text-warn" %}{% elif log.action == "complaint_assigned" %}{% icon "person-check-fill" %}{% elif log.action == "complaint_created" %}{% icon "plus-circle-fill" %}{% elif log.action == "attachment_uploaded" or log.action == "attachment_downloaded" %}{% icon "paperclip" %}{% else %}{% icon "activity" %}{% endif %}</span>
+                <div class="mini-grow"><strong>{{ log.action|nice }}</strong><span class="cell-sub">{% if log.user %}{{ log.user.username }}{% else %}anonymous{% endif %} &middot; {{ log.created_at|date:"d M, H:i" }}</span></div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="empty">{% icon "activity" %}<strong>No activity yet</strong></div>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

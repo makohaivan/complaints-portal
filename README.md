@@ -133,6 +133,15 @@ upload abuse, forced browsing, and brute-force/lockout behaviour.
 - [OWASP ZAP guide](docs/ZAP_GUIDE.md)
 - Security report and demo video: see the links at the top of this README
 
+## Credits
+
+- [Bootstrap](https://getbootstrap.com) 5.3 (MIT)
+- [Bootstrap Icons](https://icons.getbootstrap.com) (MIT), a subset is served from `static/vendor/icons/`
+- [Inter](https://rsms.me/inter/) and [Plus Jakarta Sans](https://github.com/tokotype/PlusJakartaSans) fonts (SIL OFL), self-hosted from `static/vendor/fonts/` through Fontsource
+
+All assets are served from this application's own origin, so the Content-Security-Policy
+(`script-src 'none'`, no third-party hosts) is unchanged.
+
 ## Known limitations
 
 See the security report for the full reflection. In short: no antivirus scanning of

@@ -3,9 +3,11 @@ from django.urls import path
 from config.ratelimit import post_rate_limit
 
 from . import views
+from .dashboard import DashboardView
 
 urlpatterns = [
     path("", views.ComplaintListView.as_view(), name="home"),
+    path("dashboard/", DashboardView.as_view(), name="dashboard"),
     path(
         "complaints/new/",
         post_rate_limit("complaint_create", limit=10, window=3600)(

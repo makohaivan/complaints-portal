@@ -1,0 +1,45 @@
+{% load ui %}
+<aside class="sidebar" aria-label="Main navigation">
+  <a class="brand" href="{% url 'dashboard' %}">
+    <span class="brand-mark">{% include "includes/logo.html" %}</span>
+    <span><strong>Complaints Portal</strong><small>STUDENT SERVICES</small></span>
+  </a>
+
+  <nav class="side-nav">
+    <div class="nav-label">Overview</div>
+    <a class="nav-item {% if url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">{% icon "speedometer2" %}<span>Dashboard</span></a>
+
+    {% if user.is_student %}
+      <div class="nav-label">Complaints</div>
+      <a class="nav-item {% if url_name == 'home' or url_name == 'complaint_detail' %}active{% endif %}" href="{% url 'home' %}">{% icon "journal-text" %}<span>My complaints</span></a>
+      <a class="nav-item {% if url_name == 'complaint_create' %}active{% endif %}" href="{% url 'complaint_create' %}">{% icon "plus-circle-fill" %}<span>New complaint</span></a>
+    {% elif user.is_staff_member %}
+      <div class="nav-label">Casework</div>
+      <a class="nav-item {% if url_name == 'home' or url_name == 'complaint_detail' %}active{% endif %}" href="{% url 'home' %}">{% icon "person-check-fill" %}<span>Assigned to me</span></a>
+    {% else %}
+      <div class="nav-label">Management</div>
+      <a class="nav-item {% if url_name == 'home' or url_name == 'complaint_detail' %}active{% endif %}" href="{% url 'home' %}">{% icon "inboxes-fill" %}<span>All complaints</span></a>
+      <a class="nav-item" href="{% url 'home' %}?status=open">{% icon "hourglass-split" %}<span>Needs assignment</span></a>
+    {% endif %}
+
+    <div class="nav-label">Account</div>
+    <a class="nav-item {% if url_name == 'password_change' %}active{% endif %}" href="{% url 'password_change' %}">{% icon "key-fill" %}<span>Change password</span></a>
+    {% if user.is_portal_admin and user.is_staff %}
+      <a class="nav-item" href="{% url 'admin:complaints_auditlog_changelist' %}">{% icon "shield-lock-fill" %}<span>Audit log</span></a>
+    {% endif %}
+  </nav>
+
+  <div class="user-card">
+    <div class="user-row">
+      <span class="avatar">{{ user.username|first|upper }}</span>
+      <div class="user-meta">
+        <strong>{{ user.username }}</strong>
+        <span class="role-pill">{{ user.get_role_display }}</span>
+      </div>
+    </div>
+    <form method="post" action="{% url 'logout' %}">
+      {% csrf_token %}
+      <button type="submit" class="logout-btn">{% icon "box-arrow-right" %}<span>Log out</span></button>
+    </form>
+  </div>
+</aside>

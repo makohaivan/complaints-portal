@@ -1,90 +1,91 @@
-{% extends "base.html" %}
+{% extends "base.html" %}{% load ui %}
 {% block title %}{{ complaint.title }}{% endblock %}
+{% block page_title %}Complaint details{% endblock %}
+{% block page_sub %}{{ complaint.get_category_display }}{% endblock %}
 {% block content %}
-<a href="{% url 'home' %}" class="small">&larr; Back to complaints</a>
+<a href="{% url 'home' %}" class="crumb">{% icon "arrow-right-circle-fill" "flip" %}<span>Back to complaints</span></a>
 
-<div class="row g-4 mt-1">
-  <div class="col-lg-8">
-    <div class="card shadow-sm mb-4">
-      <div class="card-body p-4">
-        <div class="d-flex justify-content-between align-items-start">
-          <h1 class="h4">{{ complaint.title }}</h1>
-          <span class="badge bg-primary">{{ complaint.get_status_display }}</span>
-        </div>
-        <p class="text-muted small mb-3">
-          {{ complaint.get_category_display }} &middot; submitted {{ complaint.created_at|date:"d M Y, H:i" }}
-          {% if not user.is_student %}by {{ complaint.student.username }}{% endif %}
-          {% if complaint.assigned_to %}&middot; assigned to {{ complaint.assigned_to.username }}{% endif %}
-        </p>
-        <p class="preserve-lines">{{ complaint.description }}</p>
-
-        <h2 class="h6 mt-4">Attachments</h2>
-        {% for a in attachments %}
-          <div class="small">
-            <a href="{% url 'attachment_download' a.pk %}">{{ a.original_name }}</a>
-            <span class="text-muted">({{ a.size|filesizeformat }}, uploaded by {{ a.uploaded_by.username }})</span>
-          </div>
-        {% empty %}
-          <p class="text-muted small mb-0">No attachments.</p>
-        {% endfor %}
+<div class="grid-2">
+  <div>
+    <div class="card-ui pad mb-4">
+      <div class="d-flex justify-content-between align-items-start gap-3">
+        <h2 class="detail-title">{{ complaint.title }}</h2>
+        <span class="pill pill-{{ complaint.status }}">{{ complaint.get_status_display }}</span>
       </div>
+      <div class="meta-row">
+        <span class="chip">{% icon "tag-fill" %}{{ complaint.get_category_display }}</span>
+        <span class="chip">{% icon "calendar3" %}{{ complaint.created_at|date:"d M Y, H:i" }}</span>
+        {% if not user.is_student %}<span class="chip">{% icon "person-fill" %}{{ complaint.student.username }}</span>{% endif %}
+        {% if complaint.assigned_to %}<span class="chip">{% icon "person-check-fill" %}Assigned to {{ complaint.assigned_to.username }}</span>{% endif %}
+      </div>
+      <p class="preserve-lines mb-0">{{ complaint.description }}</p>
+
+      <div class="section-label">Attachments</div>
+      {% for a in attachments %}
+        <div class="file-row">{% icon "file-earmark-arrow-down-fill" %}<a href="{% url 'attachment_download' a.pk %}">{{ a.original_name }}</a><span class="cell-sub">{{ a.size|filesizeformat }} &middot; uploaded by {{ a.uploaded_by.username }}</span></div>
+      {% empty %}
+        <p class="cell-sub mb-0">No attachments.</p>
+      {% endfor %}
     </div>
 
-    <h2 class="h5">Responses</h2>
+    <h2 class="h5 mb-3">Responses</h2>
     {% for r in complaint.responses.all %}
-      <div class="card mb-2"><div class="card-body py-2">
-        <div class="small text-muted">{{ r.author.username }} <span class="badge bg-secondary">{{ r.author.get_role_display }}</span> &middot; {{ r.created_at|date:"d M Y, H:i" }}</div>
-        <div class="preserve-lines">{{ r.message }}</div>
-      </div></div>
+      <div class="reply">
+        <span class="avatar">{{ r.author.username|first|upper }}</span>
+        <div class="reply-body">
+          <div class="reply-head"><strong>{{ r.author.username }}</strong><span class="reply-role">{{ r.author.get_role_display }}</span><span>{{ r.created_at|date:"d M Y, H:i" }}</span></div>
+          <div class="preserve-lines">{{ r.message }}</div>
+        </div>
+      </div>
     {% empty %}
-      <p class="text-muted">No responses yet.</p>
+      <div class="card-ui"><div class="empty">{% icon "chat-dots-fill" %}<strong>No responses yet</strong>Staff replies will appear here.</div></div>
     {% endfor %}
 
     {% if response_form %}
-      <div class="card shadow-sm mt-3"><div class="card-body">
-        <h3 class="h6">Reply to the student</h3>
+      <div class="card-ui action-card mt-3">
+        <h3>{% icon "send-fill" %}Reply to the student</h3>
         <form method="post" action="{% url 'complaint_respond' complaint.pk %}">
           {% csrf_token %}
           <div class="mb-2">{{ response_form.message }}</div>
-          <button class="btn btn-primary btn-sm" type="submit">Send response</button>
+          <button class="btn btn-primary btn-sm" type="submit">{% icon "send-fill" %}<span>Send response</span></button>
         </form>
-      </div></div>
+      </div>
     {% endif %}
   </div>
 
-  <div class="col-lg-4">
+  <div class="stack">
     {% if assign_form %}
-      <div class="card shadow-sm mb-3"><div class="card-body">
-        <h3 class="h6">Assign to staff</h3>
+      <div class="card-ui action-card">
+        <h3>{% icon "person-check-fill" %}Assign to staff</h3>
         <form method="post" action="{% url 'complaint_assign' complaint.pk %}">
           {% csrf_token %}
           <div class="mb-2">{{ assign_form.staff }}</div>
           <button class="btn btn-primary btn-sm" type="submit">Assign</button>
         </form>
-      </div></div>
+      </div>
     {% endif %}
 
     {% if status_form %}
-      <div class="card shadow-sm mb-3"><div class="card-body">
-        <h3 class="h6">Update status</h3>
+      <div class="card-ui action-card">
+        <h3>{% icon "arrow-repeat" %}Update status</h3>
         <form method="post" action="{% url 'complaint_status' complaint.pk %}">
           {% csrf_token %}
           <div class="mb-2">{{ status_form.status }}</div>
           <button class="btn btn-primary btn-sm" type="submit">Update</button>
         </form>
-      </div></div>
+      </div>
     {% endif %}
 
     {% if upload_form %}
-      <div class="card shadow-sm mb-3"><div class="card-body">
-        <h3 class="h6">Add an attachment</h3>
+      <div class="card-ui action-card">
+        <h3>{% icon "paperclip" %}Add an attachment</h3>
         <form method="post" enctype="multipart/form-data" action="{% url 'complaint_upload' complaint.pk %}">
           {% csrf_token %}
           <div class="mb-2">{{ upload_form.file }}</div>
           <div class="form-text mb-2">PDF, PNG or JPG, max 2 MB, up to 3 files.</div>
           <button class="btn btn-primary btn-sm" type="submit">Upload</button>
         </form>
-      </div></div>
+      </div>
     {% endif %}
   </div>
 </div>
